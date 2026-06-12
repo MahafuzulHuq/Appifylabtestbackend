@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  firstName     String
+  lastName      String
+  email         String         @unique
+  passwordHash  String
+  avatarUrl     String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+  posts         Post[]
+  comments      Comment[]
+  likes         Like[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Post {
+  id         String    @id @default(cuid())
+  authorId   String
+  author     User      @relation(fields: [authorId], references: [id])
+  content    String
+  imageUrl   String?
+  visibility String    @default("public")
+  createdAt  DateTime  @default(now())
+  comments   Comment[]
+  likes      Like[]
+
+  @@index([createdAt], name: "Post_createdAt_idx")
+  @@index([authorId], name: "Post_authorId_idx")
+  @@index([visibility], name: "Post_visibility_idx")
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  postId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id])
+  parentId  String?
+  parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies   Comment[] @relation("CommentReplies")
+  content   String
+  createdAt DateTime  @default(now())
+  likes     Like[]
+
+  @@index([postId, createdAt], name: "Comment_postId_createdAt_idx")
+  @@index([parentId], name: "Comment_parentId_idx")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  postId    String?
+  post      Post?    @relation(fields: [postId], references: [id])
+  commentId String?
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@index([postId], name: "Like_postId_idx")
+  @@index([commentId], name: "Like_commentId_idx")
+  @@unique([userId, postId], name: "Like_userId_postId_key")
+  @@unique([userId, commentId], name: "Like_userId_commentId_key")
+}
