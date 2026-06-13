@@ -11,12 +11,12 @@
     "db:push": "prisma db push"
   },
   "prisma": {
-    "seed": "ts-node prisma\\seed.ts"
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^5.22.0",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^25.9.3",
     "nodemon": "^3.1.0",
     "ts-node": "^10.9.2",

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
  
@@ -23,8 +23,8 @@ function generateFakeUser(index: number, sharedPasswordHash: string) {
   const avatarIndex = (index - 1) % FIXED_AVATARS.length;
 
   return {
-    firstName: `AdminFirst_${index}`,
-    lastName: `AdminLast_${index}`,
+    firstName: `Admin_${index}`,
+    lastName: `Last_${index}`,
     email: `admin${index}@gmail.com`, 
     passwordHash: sharedPasswordHash, 
     avatarUrl: FIXED_AVATARS[avatarIndex],  
@@ -46,7 +46,7 @@ function generateFakePost(index: number, authorId: string) {
 async function main() {
   const globalStartTime = Date.now();
   
-  const TARGET_USER_ID = "cmqaanlvd0000v8zu2qjkenbw";
+  const TARGET_USER_ID = "cmqb4304k00007j0s4q1srnb7";
   const MAIN_ADMIN_EMAIL = "admin@gmail.com";
   const ADMIN_PLAIN_PASSWORD = "123456";
   

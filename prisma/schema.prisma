@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -14,12 +15,12 @@ model User {
   email         String         @unique
   passwordHash  String
   avatarUrl     String?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
   refreshTokens RefreshToken[]
   posts         Post[]
   comments      Comment[]
   likes         Like[]
+  createdAt     DateTime       @default(now())  
+  updatedAt     DateTime       @updatedAt
 }
 
 model RefreshToken {
@@ -29,6 +30,7 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id])
   expiresAt DateTime
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Post {
@@ -37,10 +39,11 @@ model Post {
   author     User      @relation(fields: [authorId], references: [id])
   content    String
   imageUrl   String?
-  visibility String    @default("public")
-  createdAt  DateTime  @default(now())
+  visibility String    @default("public")  
   comments   Comment[]
   likes      Like[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([createdAt], name: "Post_createdAt_idx")
   @@index([authorId], name: "Post_authorId_idx")
@@ -56,9 +59,10 @@ model Comment {
   parentId  String?
   parent    Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
   replies   Comment[] @relation("CommentReplies")
-  content   String
-  createdAt DateTime  @default(now())
+  content   String 
   likes     Like[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   @@index([postId, createdAt], name: "Comment_postId_createdAt_idx")
   @@index([parentId], name: "Comment_parentId_idx")
@@ -73,6 +77,7 @@ model Like {
   commentId String?
   comment   Comment? @relation(fields: [commentId], references: [id])
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([postId], name: "Like_postId_idx")
   @@index([commentId], name: "Like_commentId_idx")

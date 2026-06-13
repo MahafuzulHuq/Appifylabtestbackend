@@ -1,5 +1,6 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+//const bcrypt = require("bcrypt");
+const bcrypt = require('bcryptjs');
 const jwt = require("jsonwebtoken");
 
 const { body, validationResult } = require("express-validator");
@@ -48,7 +49,7 @@ router.post( "/register", [
       return res.status(400).json({ errors: errors.array() });
 
     const { firstName, lastName, email, password } = req.body;
-
+    
     try {
       const existing = await prisma.user.findUnique({ where: { email } });       
       if (existing)
@@ -81,18 +82,14 @@ router.post( "/register", [
       });
       setCookies(res, accessToken, refreshToken);
 
-      return res
-        .status(201)
-        .json({ message: "Account created successfully", user });
-    } catch (err) {       
-      return res
-        .status(500)
-        .json({ error: "Server error during registration" });
+      return res.status(201).json({ message: "Account created successfully", user });
+    } catch (err) {    
+      return res.status(500).json({ error: "Server error during registration" });
     }
   },
 );
 
-router.post(  "/login",
+router.post( "/login",
   [
     body("email")
       .isEmail()
@@ -108,6 +105,7 @@ router.post(  "/login",
     const { email, password } = req.body;
     try {
       const user = await prisma.user.findUnique({ where: { email } });
+      console.log(user);
       if (!user)
         return res
           .status(401)

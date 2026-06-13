@@ -2,11 +2,11 @@ const express = require("express");
 const { body, validationResult } = require("express-validator");
 const { PrismaClient } = require("@prisma/client");
 const { authenticate } = require("../middleware/auth");
-const { upload } = require("../middleware/upload"); 
+const { upload } = require("../middleware/upload");
 
 const router = express.Router();
 const prisma = new PrismaClient();
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 100;
 
 const postSelect = (currentUserId) => ({
   id: true,
@@ -29,7 +29,7 @@ const formatPost = (p) => ({
   likes: undefined,
   _count: undefined,
 });
-  
+
 router.get("/", authenticate, async (req, res) => {
   try {
     const { cursor } = req.query;
@@ -56,12 +56,15 @@ router.get("/", authenticate, async (req, res) => {
         : null;
 
     return res.json({ posts: posts.map(formatPost), nextCursor });
-  } catch (err) {     
+  } catch (err) {
     return res.status(500).json({ error: "Error fetching posts" });
   }
 });
 
-router.post( "/", authenticate, upload.single("image"),
+router.post(
+  "/",
+  authenticate,
+  upload.single("image"),
   [
     body("content")
       .trim()
@@ -81,14 +84,14 @@ router.post( "/", authenticate, upload.single("image"),
     try {
       const { content, visibility = "public" } = req.body;
       const imageUrl = req.file ? `/api/uploads/${req.file.filename}` : null;
- 
+
       const post = await prisma.post.create({
         data: { authorId: req.user.userId, content, imageUrl, visibility },
         select: postSelect(req.user.userId),
       });
-
+      console.log(post);
       return res.status(201).json(formatPost(post));
-    } catch (err) {      
+    } catch (err) {
       return res.status(500).json({ error: "Error creating post" });
     }
   },
@@ -103,7 +106,7 @@ router.delete("/:id", authenticate, async (req, res) => {
 
     await prisma.post.delete({ where: { id: req.params.id } });
     return res.json({ message: "Post deleted" });
-  } catch (err) {    
+  } catch (err) {
     return res.status(500).json({ error: "Error deleting post" });
   }
 });
@@ -127,7 +130,7 @@ router.post("/:id/like", authenticate, async (req, res) => {
       const count = await prisma.like.count({ where: { postId } });
       return res.json({ liked: true, likeCount: count });
     }
-  } catch (err) {    
+  } catch (err) {
     return res.status(500).json({ error: "Error toggling like" });
   }
 });

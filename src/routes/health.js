@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 router.get("/", async (req, res) => {
   try {
     const [dbTimeResult, totalUsers, totalPosts] = await Promise.all([
-      prisma.$queryRaw`SELECT NOW() as current_time`,
+      prisma.$queryRaw`SELECT * FROM User`,
       prisma.user.count(),
       prisma.post.count(),
     ]);
@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
       message: "Server is running",
       database: "connected",
       timestamp: new Date().toISOString(),
-      dbTime: dbTimeResult[0]?.current_time || null,
+      dbTime: dbTimeResult[0] || null,
       metrics: {
         totalUsers: totalUsers,
         totalPosts: totalPosts,
